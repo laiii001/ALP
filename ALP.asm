@@ -9,6 +9,14 @@
 
 		dot db, "0.$"
 
+		inputA1 db 0 	; input A first digit
+		inputA2 db 0 	; input A second digit
+		inputA3 db 0 	; input A third digit
+
+		inputB1 db 0 	; input B first digit
+		inputB2 db 0 	; input B second digit
+		inputB3 db 0 	; input B third digit
+
         ;Main  Menu string
         menu1 db 0dh,0ah, "               ================== MAIN MENU =================== $"
         msg1 db 0dh,0ah,  "                          [1] Calculator             $"
@@ -477,58 +485,59 @@ ADD_BASE3 proc
 		int 21h
 
 
-
 ; first input
-	addendb3_first:
+		addendb3_first:
 		lea dx,anum1
 		int 21h
 
 		; Print dot character
-        lea dx, dot     ; Load dot character = '00.'
+        lea dx, dot     		; Load dot character = '00.'
         int 21h
 
+		; input first digit
 		mov ah,01h
 		int 21h
-		mov ch,al
+		mov [inputA1],al
 
 		;=== FILTER INPUT ===
-		cmp ch,'0'         ;reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		cmp [inputA1],'0'         ; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
 		jl ADD_BASE3
 
-		cmp ch,'2'
-		jg ADD_BASE3	   ;reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
-		sub ch,30h ;subtract 0 from input
+		cmp [inputA1],'2'
+		jg ADD_BASE3	   		; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
 
+		sub [inputA1],30h 		; subtract 0 from input
 
 ; second input 
 	addendb3_second:
 		mov ah,01h
 		int 21h
-		mov cl,al
+		mov [inputA2] ,al
 
 		;=== FILTER INPUT ===
-		cmp cl,30h ;reject input less than 0
-		jl ADD_BASE3       ;reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		cmp [inputA2] ,30h 		; reject input less than 0
+		jl ADD_BASE3       		; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
 
-		cmp cl,32h
-		jg ADD_BASE3	   ;reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
-		sub cl,30h ;subtract 0 from input
+		cmp [inputA2] ,32h
+		jg ADD_BASE3	   		; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		sub [inputA2],30h 				; subtract 0 from input
 
 ; third input
 	addendb3_third:
 		mov ah,01h
 		int 21h
-		mov dh,al
+		mov [inputA3] ,al
 
 		;=== FILTER INPUT ===
-		cmp dh,30h ;reject input less than 0
-		jl ADD_BASE3       ;reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		cmp [inputA3],30h 		; reject input less than 0
+		jl ADD_BASE3       		; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
 
-		cmp dh,32h
-		jg ADD_BASE3	   ;reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
-		sub dh,30h ;subtract 0 from input
+		cmp [inputA3],32h
+		jg ADD_BASE3	   		; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
 
-	; Addend = 00. CH CL DH 
+		sub [inputA3],30h 		; subtract 0 from input
+
 ; ================= ITO YUNG LASON SA CODE NYO ================= ;
 ; Explanation : nag rurun parin tong line of code nato kahit percect naman ang input
 		; ab3:
@@ -553,54 +562,53 @@ AUGEND_B3 proc
 		int 21h
 
 		; Print dot character
-        lea dx, dot     ; Load dot character = '00.'
+        lea dx, dot     		; Load dot character = '0.'
         int 21h
 
-		mov ah,01  ;input second number
+		mov ah,01  				; input second number
 		int 21h
-		mov dl,al
+		mov [inputB1],al
 
-         ; filter input
-		cmp dl,30h ;reject input less than 0 
+        ; filter input
+		cmp [inputB1],30h 				; reject input less than 0 
 		jl ADD_BASE3
 
-		cmp dl,32h ;reject input higher than 2
+		cmp [inputB1],32h 				; reject input higher than 2
 		jg ADD_BASE3
 
-		sub dl,30h ;subtract 0 from 
+		sub [inputB1],30h 				; subtract 0 from 
 
 ; second input
 	augendb3_second:
 
 		mov ah,01
 		int 21h
-		mov bh,al
+		mov [inputB2] ,al
 
         ; filter input
-		cmp bh,30h ;reject input less than 0 
+		cmp [inputB2],30h 						; reject input less than 0 
 		jl ADD_BASE3
 
-		cmp bh,32h ;reject input higher than 2
+		cmp [inputB2],32h 						; reject input higher than 2
 		jg ADD_BASE3
 
-
-		sub bh,30h ;subtract 0 from 
+		sub [inputB2],30h 						; subtract 0 from 
 
 ; third input
 	augendb3_third:
 
-		mov ah,01
+		mov ah,01h
 		int 21h
-		mov bl,al
+		mov [inputB3],al
 
         ; filter input
-		cmp bl,30h ;reject input less than 0 
+		cmp [inputB3],30h 						; reject input less than 0 
 		jl ADD_BASE3
 
-		cmp bl,32h ;reject input higher than 2
+		cmp [inputB3],32h 						; reject input higher than 2
 		jg ADD_BASE3
 
-		sub bl,30h ;subtract 0 from 
+		sub [inputB3],30h 						; subtract 0 from 
 
 ; ==================== hindi nyo na kelangan to pang pahaba lang ng code to ==================== ;
 		; jmp SUM_B3 ;jump to sum function
@@ -613,47 +621,91 @@ AUGEND_B3 proc
 ; ==================== ============================================================ ============= ;
 
 ; Total
-		; Addend = 0.CH CL DH
-		; Augend = 0.DL BH BL
+		; Addend = 0. inputA1 inputA2 inputA3 
+		; Augend = 0. inputB1 inputB2 inputB3 
 
-		SUM_B3:
-; ================= inulit ko ang computation mga ser ================= ;
-		; mov al,cl ;first num addend
-		; add al,dl ;add second augend
-		; mov ah,00h
-		; mov bl,03h
-		; aad	  ;adjust ax before division
+		SUM_B3: 
+; -------------------- Total in base 3 ------------------------------ ;
 
-		; div bl	
-		; mov cl,ah
-		; add al,ch
-		; add al,dh
+; =============== addtion of inputA3 + inputB3 =============== ;
+		mov al,[inputA3]
+		add al,[inputB3]
+		mov [inputB3],al   ; result of the total inputA3 + inputB3
 
-		; mov ah,00h
-		; mov bl,3h
-		; aad
+		; division of result
+		mov ah,00h
+		mov al,00h
+		mov al,[inputB3]	; transfer the total to al
+		mov bl,03h			; base 3
+		div bl
 
-		; div bl
-		; or ax,3030h ; OR AX with 00 to reset
-		; mov bx,ax   ;copy value of ax to bx
-		; mov ah,09h
-		; lea dx,res1
-		; int 21h
+		; result
+		mov [inputA3],al    ; quotient
+		mov [inputB3],ah    ; ramainder = last digit
 
-		; add cl,30h
-		; mov ah,02h  ;display value of bx 
-		; mov dl,bl
-		; int 21h
+; =============== addition of quotient + inputA2 + inputB2 =============== ;
+		mov bl,[inputA3]  	; move the quotient to bl
+		mov al,[inputA2]	; move the inputA2  to al
+		add al,bl			; add quotient + inputA2
+		add al,[inputB2]   	; add al total = inputB2 
+		mov [inputB2],al    ; result of the total inputA2 + inputB2
+ 
+		; division of result
+		mov ah,00h
+		mov al,[inputB2]	; transfer the total to al
+		mov bl,03h			; base 3
+		div bl
+
+		; result
+		mov [inputA2],al    ; quotient
+		mov [inputB2],ah    ; remainder = third digit 
+
+; =============== addition of quotient + inputA1 + inputB1 =============== ;
+		mov bl,[inputA2]  	; move the quotient to bl
+		mov al,[inputA1]	; move the inputA2  to al
+		add al,bl			; add quotient + inputA2
+		add al,[inputB1]   	; add al total = inputB2  
+		mov [inputB1],al    ; result of the total inputA2 + inputB2
+
+		; division of result
+		mov ah,00h
+		mov al,[inputB1]	; transfer the total to al
+		mov bl,03h			; base 3
+		div bl		
+
+		; result
+		mov [inputB1],ah    ; ramainder = second digit
+		mov [inputA1],al    ; quotient  = first digit
 		
-		; ; Print dot character
-        ; mov dl, '.'      ; Load dot character
-        ; mov ah, 02h
-        ; int 21h
+		; print out the result
+		mov ah,09h      	;Print out
+    	lea dx,res1
+    	int 21h
 
-		; mov dl,bh   ;remainder stored in this register
-		; int 21h
-		; mov dl,cl   ;register for first remainder
-		; int 21h
+		mov ah, 02h 		 ; pang print out ito
+
+		mov dl,[inputA1] 	 ; first digit
+		add dl,'0'
+    	int 21h
+
+		; Print dot character
+        mov dl, '.'     	 ; dot'
+        int 21h
+
+		mov dl,[inputB1]     ; second digit
+		add dl,'0'
+    	int 21h
+
+		mov dl,[inputB2]	 ; third digit
+		add dl,'0'
+    	int 21h
+
+		mov dl,[inputB3]	 ; last digit
+		add dl,'0'
+    	int 21h
+
+
+
 ; ================================================================================ ;
 
 	ADD_BASE3_AGAIN:
