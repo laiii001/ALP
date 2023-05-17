@@ -62,8 +62,8 @@
 		
 		;Base 6 Add String
 		menu213 db 0dh,0ah, " 	 ================== ADDITION: BASE 06 ================== $"
-		anum5 db 0dh,0ah, 	" 			Addend [00-55]: $"
-		anum6 db 0dh,0ah, 	" 			Augend [00-55]: $"
+		anum5 db 0dh,0ah, 	" 			Addend [0.000-0.555]: $"
+		anum6 db 0dh,0ah, 	" 			Augend [0.000-0.555]: $"
 		
 		res3 db 0dh,0ah, 	" 			Sum is: $"
 		aloop3 db 0dh,0ah, 	" 			Add again? [Y/N]: $"
@@ -418,11 +418,11 @@ CALC_CHOOSE_BASE proc
         int 21h
 		
         mov ah,09h
-        lea dx,b14cal
+        lea dx,b14cal ; base 14 calculator
         int 21h
 		
 		mov ah,09h
-		lea dx,b6cal
+		lea dx,b6cal  ; base 6 calculator
 		int 21h
 		
 		mov ah,09h
@@ -435,25 +435,26 @@ CALC_CHOOSE_BASE proc
 		lea dx,inpt3
 		int 21h
 		
-		mov ah,1
+		mov ah,01h 				; mov ah,1 = dapat 01h to
         int 21h
-        mov bh,al
-        sub bh,48
+        ; mov bh,al = rekta na al
+
+		; NOTE: di na kekalangan nito , bawat choices dapat may '' ganto
+        ; sub bh,48
 		
-		cmp bh,1
-        call cls
+		cmp al,'1'				; cmp bh,1 mali to
 		je ADD_BASE3
 		
-		cmp bh,2
+		cmp al,'2'				; cmp bh,2 mali to
 		je ADD_BASE14
 
-		;cmp bh,3
-		;je ADD_BASE6
+		cmp al,'3'				; cmp bh,3 mali to
+		je ADD_BASE6
 		
-		cmp bh,4
+		cmp al,'4'				; cmp bh,4 mali to
 		je CALC_MAIN
 		
-		cmp bh,5
+		; cmp bh,5 di na kelangan to
 		jge invalid_calc_choose_base
 
 CALC_CHOOSE_BASE endp
@@ -813,8 +814,7 @@ ADD_BASE14_AGAIN endp
 
 ADD_BASE6 proc
 		
-		call cls
-		
+; pang clear screeen
 		mov ax,0600h
         mov bh,70h
         mov cx,0000h
@@ -828,25 +828,206 @@ ADD_BASE6 proc
 		call linefeed
 
         mov ah,09h
-        lea dx,menu213
+        lea dx,menu213  ; ==== ADDITION BASE 06 =====
         int 21h
 		
 		call linefeed
 
+; first input
         mov ah,09h
-        lea dx,anum5
+        lea dx,anum5  			; addend
         int 21h
 
-        mov ah,09h
-        lea dx,anum6
+		; Print dot character
+        lea dx, dot     		; Load dot character = '00.'
         int 21h
+
+		; ======= input first digit
+		mov ah,01h
+		int 21h
+		mov [inputA1],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA1],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl ADD_BASE6
+
+		cmp [inputA1],'5'
+		jg ADD_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		sub [inputA1],30h 			; subtract 0 from input
+		; ============================== ;
+
+		; =======  input second digit
+		mov ah,01h
+		int 21h
+		mov [inputA2],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA2],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl ADD_BASE6
+
+		cmp [inputA2],'5'
+		jg ADD_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		sub [inputA2],30h 			; subtract 0 from input
+		; ============================== ;
+
+		; =======   input third digit
+		mov ah,01h
+		int 21h
+		mov [inputA3],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA3],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl ADD_BASE6
+
+		cmp [inputA3],'5'
+		jg ADD_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		sub [inputA3],30h 			; subtract 0 from input
+		; ============================== ;
 		
+
+; second input
+        mov ah,09h
+        lea dx,anum6 				; auggend
+        int 21h
+
+		; Print dot character
+        lea dx, dot     			; Load dot character = '00.'
+        int 21h
+
+		; ======= input first digit
+		mov ah,01h
+		int 21h
+		mov [inputB1],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB1],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl ADD_BASE6
+
+		cmp [inputB1],'5'
+		jg ADD_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		sub [inputB1],30h 			; subtract 0 from input
+		; ============================== ;
+
+		; =======  input second digit
+		mov ah,01h
+		int 21h
+		mov [inputB2],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB2],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl ADD_BASE6
+
+		cmp [inputB2],'5'
+		jg ADD_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		sub [inputB2],30h 			; subtract 0 from input
+		; ============================== ;
+
+		; =======   input third digit
+		mov ah,01h
+		int 21h
+		mov [inputB3],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB3],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl ADD_BASE6
+
+		cmp [inputB3],'5'
+		jg ADD_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		sub [inputB3],30h 			; subtract 0 from input
+		; ============================== ;
+
+; -------------------- Total in base 6 ------------------------------ ;
+		; addend = 0.inputA1 inputA2 inputA3
+		; aggend = 0.inputB1 inputB2 inputB3
+
+; =============== addtion of inputA3 + inputB3 =============== ;
+		mov al,[inputA3]
+		add al,[inputB3]
+		mov [inputB3],al   ; result of the total inputA3 + inputB3
+
+		; division of result
+		mov ah,00h
+		mov al,00h
+		mov al,[inputB3]	; transfer the total to al
+		mov bl,06h			; base 6
+		div bl
+
+		; result
+		mov [inputA3],al    ; quotient
+		mov [inputB3],ah    ; ramainder = last digit
+
+; =============== addition of quotient + inputA2 + inputB2 =============== ;
+		mov bl,[inputA3]  	; move the quotient to bl
+		mov al,[inputA2]	; move the inputA2  to al
+		add al,bl			; add quotient + inputA2
+		add al,[inputB2]   	; add al total = inputB2 
+		mov [inputB2],al    ; result of the total inputA2 + inputB2
+ 
+		; division of result
+		mov ah,00h
+		mov al,[inputB2]	; transfer the total to al
+		mov bl,06h			; base 6
+		div bl
+
+		; result
+		mov [inputA2],al    ; quotient
+		mov [inputB2],ah    ; remainder = third digit 
+
+; =============== addition of quotient + inputA1 + inputB1 =============== ;
+		mov bl,[inputA2]  	; move the quotient to bl
+		mov al,[inputA1]	; move the inputA2  to al
+		add al,bl			; add quotient + inputA2
+		add al,[inputB1]   	; add al total = inputB2  
+		mov [inputB1],al    ; result of the total inputA2 + inputB2
+
+		; division of result
+		mov ah,00h
+		mov al,[inputB1]	; transfer the total to al
+		mov bl,06h			; base 6
+		div bl		
+
+		; result
+		mov [inputB1],ah    ; ramainder = second digit
+		mov [inputA1],al    ; quotient  = first digit
+
+
+
+
+		; print the result
 		mov ah,09h
         lea dx,res3
         int 21h
 		
-		call linefeed
-		call ADD_BASE6_AGAIN
+		mov ah, 02h 		 ; pang print out ito
+
+		mov dl,[inputA1] 	 ; first digit
+		add dl,'0'
+    	int 21h
+
+		; Print dot character
+        mov dl, '.'     	 ; dot'
+        int 21h
+
+		mov dl,[inputB1]     ; second digit
+		add dl,'0'
+    	int 21h
+
+		mov dl,[inputB2]	 ; third digit
+		add dl,'0'
+    	int 21h
+
+		mov dl,[inputB3]	 ; last digit
+		add dl,'0'
+    	int 21h
+
+
+
 ADD_BASE6 endp
 		
 ADD_BASE6_AGAIN proc
@@ -877,6 +1058,7 @@ ADD_BASE6_AGAIN proc
 		jmp ADD_BASE6
 		N_BASE6:
 		jmp CALC_CHOOSE_BASE
+
 ADD_BASE6_AGAIN endp
 		
 CONV_MAIN:
