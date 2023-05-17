@@ -7,6 +7,7 @@
 ;[DONE] FILTER: invalid, error in input, press any key to continue...
 ;FILTER: Subtrahend greater than minuend, divisor greater than dividend
 
+		dot db, "0.$"
 
         ;Main  Menu string
         menu1 db 0dh,0ah, "               ================== MAIN MENU =================== $"
@@ -37,8 +38,8 @@
 		
 		;Base 3 Add String
 		menu211 db 0dh,0ah, " 	 ================== ADDITION: BASE 03 ================== $"
-		anum1 db 0dh,0ah,   " 			Addend [00-22]: $"
-		anum2 db 0dh,0ah,   " 			Augend [00-22]: $"
+		anum1 db 0dh,0ah,   " 			Addend [0.000-0.222]: $"
+		anum2 db 0dh,0ah,   " 			Augend [0.000-0.222]: $"
 		
 		res1 db 0dh,0ah,    " 			Sum is: $"
 		aloop1 db 0dh,0ah, 	" 			Add again? [Y/N]: $"
@@ -273,7 +274,7 @@ MAIN_MENU proc					;main menu
         call linefeed
 
         mov ah,09h
-        lea dx,msg1
+        lea dx,msg1  ; calculator
         int 21h
 
         mov ah,09h
@@ -333,7 +334,7 @@ CALC_MAIN proc
 		call linefeed
 
         mov ah,09h
-        lea dx,madd
+        lea dx,madd  ;addition
         int 21h
 
         mov ah,09h
@@ -405,7 +406,7 @@ CALC_CHOOSE_BASE proc
 		call linefeed
 		
         mov ah,09h
-        lea dx,b3cal
+        lea dx,b3cal  ; base 3 calculator
         int 21h
 		
         mov ah,09h
@@ -432,6 +433,7 @@ CALC_CHOOSE_BASE proc
         sub bh,48
 		
 		cmp bh,1
+        call cls
 		je ADD_BASE3
 		
 		cmp bh,2
@@ -451,7 +453,8 @@ CALC_CHOOSE_BASE endp
 ;================= ADDITION TO OTHER BASE ================;		
 ;================= BASE 3 ADDITION STARTS HERE ==============;
 ADD_BASE3 proc
-	
+
+; pang clear screeen
 		mov ax,0600h
         mov bh,70h
         mov cx,0000h
@@ -463,112 +466,195 @@ ADD_BASE3 proc
         int 10h
 
 		call linefeed
-		
-		mov ah,00h
-		mov ah,02h
+
+
+		mov ah,00
+		mov ah,02
 		int 10h
+
 		mov ah,09h
 		lea dx,menu211  ;==== ADDITION BASE 03 =====
 		int 21h
 
-		addendb3_first:
+
+
+; first input
+	addendb3_first:
 		lea dx,anum1
 		int 21h
+
+		; Print dot character
+        lea dx, dot     ; Load dot character = '00.'
+        int 21h
+
 		mov ah,01h
 		int 21h
 		mov ch,al
+
 		;=== FILTER INPUT ===
-		cmp ch,30h ;reject input less than 0
-		jl ab3
-		cmp ch,32h
-		jg ab3	   ;reject input higher than 2
-		jle addendb3_second
+		cmp ch,'0'         ;reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl ADD_BASE3
+
+		cmp ch,'2'
+		jg ADD_BASE3	   ;reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
 		sub ch,30h ;subtract 0 from input
 
-		addendb3_second:
+
+; second input 
+	addendb3_second:
 		mov ah,01h
 		int 21h
 		mov cl,al
+
 		;=== FILTER INPUT ===
 		cmp cl,30h ;reject input less than 0
-		jl ab3
+		jl ADD_BASE3       ;reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+
 		cmp cl,32h
-		jg ab3	   ;reject input higher than 2
+		jg ADD_BASE3	   ;reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
 		sub cl,30h ;subtract 0 from input
 
-		ab3:
-		jmp faddb3
+; third input
+	addendb3_third:
+		mov ah,01h
+		int 21h
+		mov dh,al
 
-		faddb3:			;for first input
-		call ADD_BASE3
+		;=== FILTER INPUT ===
+		cmp dh,30h ;reject input less than 0
+		jl ADD_BASE3       ;reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		cmp dh,32h
+		jg ADD_BASE3	   ;reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
+		sub dh,30h ;subtract 0 from input
+
+	; Addend = 00. CH CL DH 
+; ================= ITO YUNG LASON SA CODE NYO ================= ;
+; Explanation : nag rurun parin tong line of code nato kahit percect naman ang input
+		; ab3:
+		; jmp faddb3
+
+		; faddb3:			;for first input
+		; call ADD_BASE3
 		
-		saddb3:
-		call AUGEND_B3
+		; saddb3:
+		; call AUGEND_B3
+
+; ============================================================= ;
 ADD_BASE3 endp
 
 AUGEND_B3 proc
 
-		augendb3_first:
+	augendb3_first:
+
+; first input
 		mov ah,09h
 		lea dx,anum2
 		int 21h
+
+		; Print dot character
+        lea dx, dot     ; Load dot character = '00.'
+        int 21h
+
 		mov ah,01  ;input second number
 		int 21h
-		mov dh,al
-		cmp dh,30h ;reject input less than 0 
-		jl aub3
-		cmp dh,32h ;reject input higher than 2
-		jg aub3
-		sub dh,30h ;subtract 0 from 
+		mov dl,al
 
-		augendb3_second:
+         ; filter input
+		cmp dl,30h ;reject input less than 0 
+		jl ADD_BASE3
+
+		cmp dl,32h ;reject input higher than 2
+		jg ADD_BASE3
+
+		sub dl,30h ;subtract 0 from 
+
+; second input
+	augendb3_second:
+
 		mov ah,01
 		int 21h
-		mov dl,al
-		cmp dl,30h ;reject input less than 0 
-		jl aub3
-		cmp dl,32h ;reject input higher than 2
-		jg aub3
-		sub dl,30h ;subtract 0 from 
-		jmp SUM_B3 ;jump to sum function
-		
-		aub3:
-		call faugb3
+		mov bh,al
 
-		faugb3:
-		call ADD_BASE3
+        ; filter input
+		cmp bh,30h ;reject input less than 0 
+		jl ADD_BASE3
+
+		cmp bh,32h ;reject input higher than 2
+		jg ADD_BASE3
+
+
+		sub bh,30h ;subtract 0 from 
+
+; third input
+	augendb3_third:
+
+		mov ah,01
+		int 21h
+		mov bl,al
+
+        ; filter input
+		cmp bl,30h ;reject input less than 0 
+		jl ADD_BASE3
+
+		cmp bl,32h ;reject input higher than 2
+		jg ADD_BASE3
+
+		sub bl,30h ;subtract 0 from 
+
+; ==================== hindi nyo na kelangan to pang pahaba lang ng code to ==================== ;
+		; jmp SUM_B3 ;jump to sum function
+		
+		; aub3:
+		; call faugb3
+
+		; faugb3:
+		; call ADD_BASE3
+; ==================== ============================================================ ============= ;
+
+; Total
+		; Addend = 0.CH CL DH
+		; Augend = 0.DL BH BL
 
 		SUM_B3:
-		mov al,cl ;first num addend
-		add al,dl ;add second augend
-		mov ah,00h
-		mov bl,03h
-		aad	  ;adjust ax before division
+; ================= inulit ko ang computation mga ser ================= ;
+		; mov al,cl ;first num addend
+		; add al,dl ;add second augend
+		; mov ah,00h
+		; mov bl,03h
+		; aad	  ;adjust ax before division
 
-		div bl	
-		mov cl,ah
-		add al,ch
-		add al,dh
+		; div bl	
+		; mov cl,ah
+		; add al,ch
+		; add al,dh
 
-		mov ah,00h
-		mov bl,3h
-		aad
+		; mov ah,00h
+		; mov bl,3h
+		; aad
 
-		div bl
-		or ax,3030h ; OR AX with 00 to reset
-		mov bx,ax   ;copy value of ax to bx
-		mov ah,09h
-		lea dx,res1
-		int 21h
+		; div bl
+		; or ax,3030h ; OR AX with 00 to reset
+		; mov bx,ax   ;copy value of ax to bx
+		; mov ah,09h
+		; lea dx,res1
+		; int 21h
 
-		add cl,30h
-		mov ah,02h  ;display value of bx 
-		mov dl,bl
-		int 21h
-		mov dl,bh   ;remainder stored in this register
-		int 21h
-		mov dl,cl   ;register for first remainder
-		int 21h
+		; add cl,30h
+		; mov ah,02h  ;display value of bx 
+		; mov dl,bl
+		; int 21h
+		
+		; ; Print dot character
+        ; mov dl, '.'      ; Load dot character
+        ; mov ah, 02h
+        ; int 21h
+
+		; mov dl,bh   ;remainder stored in this register
+		; int 21h
+		; mov dl,cl   ;register for first remainder
+		; int 21h
+; ================================================================================ ;
 
 	ADD_BASE3_AGAIN:
 		mov ah,09h
@@ -599,6 +685,7 @@ AUGEND_B3 proc
 		jmp ADD_BASE3
 		N_BASE3:
 		jmp CALC_CHOOSE_BASE
+
 AUGEND_B3 endp
 		
 ADD_BASE14 proc
