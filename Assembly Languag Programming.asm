@@ -7,7 +7,7 @@
 ;[DONE] FILTER: invalid, error in input, press any key to continue...
 ;FILTER: Subtrahend greater than minuend, divisor greater than dividend
 
-		dot db, "0.$"
+		dot db, "00.$"
 
 		inputA1 db 0 	; input A first digit
 		inputA2 db 0 	; input A second digit
@@ -16,6 +16,11 @@
 		inputB1 db 0 	; input B first digit
 		inputB2 db 0 	; input B second digit
 		inputB3 db 0 	; input B third digit
+
+		addition db 0dh,0ah, "	            ================== Addition ====================== $"
+	subctraction db 0dh,0ah, "	          ================== subctraction ================== $"
+	multplication db 0dh,0ah, "	      ================== multplication ================= $"
+		division db 0dh,0ah, "	      ================== division ====================== $"
 
         ;Main  Menu string
         menu1 db 0dh,0ah, "               ================== MAIN MENU =================== $"
@@ -46,24 +51,24 @@
 		
 		;Base 3 Add String
 		menu211 db 0dh,0ah, " 	 ================== ADDITION: BASE 03 ================== $"
-		anum1 db 0dh,0ah,   " 			Addend [0.000-0.222]: $"
-		anum2 db 0dh,0ah,   " 			Augend [0.000-0.222]: $"
+		anum1 db 0dh,0ah,   " 			Addend [00.000-0.222]: $"
+		anum2 db 0dh,0ah,   " 			Augend [00.000-0.222]: $"
 		
 		res1 db 0dh,0ah,    " 			Sum is: $"
 		aloop1 db 0dh,0ah, 	" 			Add again? [Y/N]: $"
 		
 		;Base 14 Add String
 		menu212 db 0dh,0ah, " 	 ================== ADDITION: BASE 14 ================== $"
-		anum3 db 0dh,0ah, 	" 			Addend [00-DD]: $"
-		anum4 db 0dh,0ah, 	" 			Augend [00-DD]: $"
+		anum3 db 0dh,0ah, 	" 			Addend [00.000-0.DDD]: $"
+		anum4 db 0dh,0ah, 	" 			Augend [00.000-0.DDD]: $"
 		
 		res2 db 0dh,0ah, 	" 			Sum is: $"
 		aloop2 db 0dh,0ah, 	" 			Add again? [Y/N]: $"
 		
 		;Base 6 Add String
 		menu213 db 0dh,0ah, " 	 ================== ADDITION: BASE 06 ================== $"
-		anum5 db 0dh,0ah, 	" 			Addend [0.000-0.555]: $"
-		anum6 db 0dh,0ah, 	" 			Augend [0.000-0.555]: $"
+		anum5 db 0dh,0ah, 	" 			Addend [00.000-0.555]: $"
+		anum6 db 0dh,0ah, 	" 			Augend [00.000-0.555]: $"
 		
 		res3 db 0dh,0ah, 	" 			Sum is: $"
 		aloop3 db 0dh,0ah, 	" 			Add again? [Y/N]: $"
@@ -71,8 +76,8 @@
 		
         ;Base 3 Sub String
         menu221 db 0dh,0ah, "	 	================= SUBTRACTION: BASE 03 =================$"
-        snum1 db 0dh,0ah, 	"     				Minuend [00-22]   : $"
-        snum2 db 0dh,0ah, 	"      				Subtrahend [00-22]: $"
+        snum1 db 0dh,0ah, 	"     				Minuend [00.000-00.222]   : $"
+        snum2 db 0dh,0ah, 	"      				Subtrahend [00.000-00.222]: $"
 		
         res4 db 0dh,0ah, 	"      				Difference is     : $"
         sloop1 db 0dh,0ah,  "       				Subtract Again? [Y/N]: $"
@@ -87,8 +92,8 @@
 
         ;Base 6 Sub String
         menu223 db 0dh,0ah, "		================= SUBTRACTION: BASE 06 =================$"
-        snum5 db 0dh,0ah, 	"     				Minuend [00-55]   : $"
-        snum6 db 0dh,0ah, 	"      				Subtrahend [00-55]: $"
+        snum5 db 0dh,0ah, 	"     				Minuend [00.000-00.555]   : $"
+        snum6 db 0dh,0ah, 	"      				Subtrahend [00.000-00.555]: $"
 		
         res6 db 0dh,0ah, 	"      				Difference is     : $"
         sloop3 db 0dh,0ah, 	"       				Subtract Again? [Y/N]: $"		
@@ -346,7 +351,7 @@ CALC_MAIN proc
         int 21h
 
         mov ah,09h
-        lea dx,msub
+        lea dx,msub  ;subtraction
         int 21h
 
         mov ah,09h
@@ -375,23 +380,23 @@ CALC_MAIN proc
         sub bh,48
 		
 		cmp bh,1
-		je CALC_CHOOSE_BASE
+		je CALC_ADDITION_CHOOSE_BASE
 		
 		cmp bh,2
-		je CALC_CHOOSE_BASE
+		je CALC_SUBTRACTION_CHOOSE_BASE
 		
-		cmp bh,3
-		je CALC_CHOOSE_BASE
+		; cmp bh,3
+		; je CALC_MULTIPLICATION_CHOOSE_BASE
 		
-		cmp bh,4
-		je CALC_CHOOSE_BASE
+		; cmp bh,4
+		; je CALC_DIVISION_CHOOSE_BASE
 		
 		cmp bh,5
 		je MAIN_MENU
 		jg invalid	
 CALC_MAIN endp
-;==================== CALC: CHOOSE BASE PROCESS======================			
-CALC_CHOOSE_BASE proc
+;==================== CALC ADDTION: CHOOSE BASE PROCESS======================			
+CALC_ADDITION_CHOOSE_BASE proc
 				
         call cls
         
@@ -407,6 +412,10 @@ CALC_CHOOSE_BASE proc
 
 		call linefeed
 		
+		mov ah,09h
+        lea dx,addition
+        int 21h
+
         mov ah,09h
         lea dx,menu21
         int 21h
@@ -417,9 +426,9 @@ CALC_CHOOSE_BASE proc
         lea dx,b3cal  ; base 3 calculator
         int 21h
 		
-        mov ah,09h
-        lea dx,b14cal ; base 14 calculator
-        int 21h
+        ; mov ah,09h
+        ; lea dx,b14cal ; base 14 calculator
+        ; int 21h
 		
 		mov ah,09h
 		lea dx,b6cal  ; base 6 calculator
@@ -445,8 +454,8 @@ CALC_CHOOSE_BASE proc
 		cmp al,'1'				; cmp bh,1 mali to
 		je ADD_BASE3
 		
-		cmp al,'2'				; cmp bh,2 mali to
-		je ADD_BASE14
+		; cmp al,'2'				; cmp bh,2 mali to
+		; je ADD_BASE14
 
 		cmp al,'3'				; cmp bh,3 mali to
 		je ADD_BASE6
@@ -457,7 +466,82 @@ CALC_CHOOSE_BASE proc
 		; cmp bh,5 di na kelangan to
 		jge invalid_calc_choose_base
 
-CALC_CHOOSE_BASE endp
+CALC_ADDITION_CHOOSE_BASE endp
+
+;==================== CALC SUBTRACTION: CHOOSE BASE PROCESS======================			
+CALC_SUBTRACTION_CHOOSE_BASE proc
+				
+        call cls
+        
+        mov ax,0600h
+        mov bh,70h
+        mov cx,0000h
+        mov dx,184fh
+        int 10h
+        mov bh,00h
+        mov ah,02h
+        mov dx,011Eh
+        int 10h
+
+		call linefeed
+
+		mov ah,09h
+        lea dx,subctraction
+        int 21h
+		
+        mov ah,09h
+        lea dx,menu21
+        int 21h
+		
+		call linefeed
+		
+        mov ah,09h
+        lea dx,b3cal  ; base 3 calculator
+        int 21h
+		
+        ; mov ah,09h
+        ; lea dx,b14cal ; base 14 calculator
+        ; int 21h
+		
+		mov ah,09h
+		lea dx,b6cal  ; base 6 calculator
+		int 21h
+		
+		mov ah,09h
+		lea dx,b2cal
+		int 21h
+		
+		call linefeed
+		
+		mov ah,09h
+		lea dx,inpt3
+		int 21h
+		
+		mov ah,01h 						; mov ah,1 = dapat 01h to
+        int 21h
+        ; mov bh,al = rekta na al
+
+		; NOTE: di na kekalangan nito , bawat choices dapat may '' ganto
+        ; sub bh,48
+		
+		cmp al,'1'					; cmp bh,1 mali to
+		je SUB_BASE3
+		
+		; cmp al,'2'					; cmp bh,2 mali to
+		; je SUB_BASE14
+
+		cmp al,'3'						; cmp bh,3 mali to
+		je SUB_BASE6
+		
+		cmp al,'4'						; cmp bh,4 mali to
+		je CALC_MAIN
+		
+		; cmp bh,5 di na kelangan to
+		; jge invalid_calc_choose_base
+
+		jmp CALC_SUBTRACTION_CHOOSE_BASE ; kapag wala sa condition
+
+CALC_SUBTRACTION_CHOOSE_BASE endp
 
 ;================= ADDITION TO OTHER BASE ================;		
 ;================= BASE 3 ADDITION STARTS HERE ==============;
@@ -737,14 +821,13 @@ AUGEND_B3 proc
 		Y_BASE3:
 		jmp ADD_BASE3
 		N_BASE3:
-		jmp CALC_CHOOSE_BASE
+		jmp CALC_ADDITION_CHOOSE_BASE
 
 AUGEND_B3 endp
 		
 ADD_BASE14 proc
-		
-		call cls
-		
+
+; pang clear screeen
 		mov ax,0600h
         mov bh,70h
         mov cx,0000h
@@ -758,24 +841,215 @@ ADD_BASE14 proc
 		call linefeed
 
         mov ah,09h
-        lea dx,menu212
+        lea dx,menu212  ;==== ADDITION BASE 14 =====
         int 21h
-		
-		call linefeed
 
+; -------------- first input -------------- ;
         mov ah,09h
         lea dx,anum3
         int 21h
 
+		; Print dot character
+        lea dx, dot     			; Load dot character = '00.'
+        int 21h
+
+		; ======================== input first digit ======================== ;
+		mov ah,01h
+		int 21h
+		mov inputA1,al
+
+		;=== FILTER INPUT ===
+		cmp [inputA1],'0'         		
+		jl CHECK_LETTERS_1_1				; CHECK_LETTERS if input is less than 0
+
+		cmp [inputA1],'9'
+		jg CHECK_LETTERS_1_1	   			; CHECK_LETTERS if input is less than 9
+
+		jmp ACCEPT_INPUT_1_1				; jump to accept if input are numbers
+
+		CHECK_LETTERS_1_1:
+			cmp [inputA1],'a'         		; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+			jl ADD_BASE14
+
+			cmp [inputA1],'d'
+			jg ADD_BASE14	   				; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+			jmp first_second_digit 			; jump to next input
+
+		ACCEPT_INPUT_1_1:
+			; convert ascii to decimal
+			sub [inputA1],'0'
+
+
+		; ======================== input second digit ======================== ;
+		first_second_digit:
+		mov ah,01h
+		int 21h
+		mov inputA2,al
+
+		;=== FILTER INPUT ===
+		cmp [inputA2],'0'         		
+		jl CHECK_LETTERS_1_2				; CHECK_LETTERS if input is less than 0
+
+		cmp [inputA2],'9'
+		jg CHECK_LETTERS_1_2	   			; CHECK_LETTERS if input is less than 9
+
+		jmp ACCEPT_INPUT_1_2				; jump to accept if input are numbers
+
+		CHECK_LETTERS_1_2:
+			cmp [inputA2],'a'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+			jl ADD_BASE14
+
+			cmp [inputA2],'d'
+			jg ADD_BASE14	   			; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+			jmp first_third_digit 		; jump to next input
+		ACCEPT_INPUT_1_2:
+			; convert ascii to decimal
+			sub [inputA2],'0'
+
+		; ======================== input third digit ======================== ;
+		first_third_digit:
+		mov ah,01h
+		int 21h
+		mov inputA3,al
+
+		;=== FILTER INPUT ===
+		cmp [inputA3],'0'         		
+		jl CHECK_LETTERS_1_3				; CHECK_LETTERS if input is less than 0
+
+		cmp [inputA3],'9'
+		jg CHECK_LETTERS_1_3	   			; CHECK_LETTERS if input is less than 9
+
+		jmp ACCEPT_INPUT_1_3				; jump to accept if input are numbers
+
+		CHECK_LETTERS_1_3:
+			cmp [inputA3],'a'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+			jl ADD_BASE14
+
+			cmp [inputA3],'d'
+			jg ADD_BASE14	   			; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		ACCEPT_INPUT_1_3:
+			; convert ascii to decimal
+			sub [inputA3],'0'
+
+; second input
         mov ah,09h
         lea dx,anum4
         int 21h
-		
+
+		; Print dot character
+        lea dx, dot     			; Load dot character = '00.'
+        int 21h
+
+		; ======================== input first digit ======================== ;
+		mov ah,01h
+		int 21h
+		mov inputB1,al
+
+		;=== FILTER INPUT ===
+		cmp [inputB1],'0'         		
+		jl CHECK_LETTERS_2_1				; CHECK_LETTERS if input is less than 0
+
+		cmp [inputB1],'9'
+		jg CHECK_LETTERS_2_1	   			; CHECK_LETTERS if input is less than 9
+
+		jmp ACCEPT_INPUT_2_1				; jump to accept if input are numbers
+
+		CHECK_LETTERS_2_1:
+			cmp [inputB1],'a'         		; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+			jl ADD_BASE14
+
+			cmp [inputB1],'d'
+			jg ADD_BASE14	   				; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		ACCEPT_INPUT_2_1:
+			; convert ascii to decimal
+			sub [inputB1],'0'
+
+		; ======================== input second digit ======================== ;
+		mov ah,01h
+		int 21h
+		mov inputB2,al
+
+		;=== FILTER INPUT ===
+		cmp [inputB2],'0'         		
+		jl CHECK_LETTERS_2_2				; CHECK_LETTERS if input is less than 0
+
+		cmp [inputB2],'9'
+		jg CHECK_LETTERS_2_2	   			; CHECK_LETTERS if input is less than 9
+
+		jmp ACCEPT_INPUT_2_2				; jump to accept if input are numbers
+
+		CHECK_LETTERS_2_2:
+			cmp [inputB2],'a'         		; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+			jl ADD_BASE14
+
+			cmp [inputB2],'d'
+			jg ADD_BASE14	   				; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		ACCEPT_INPUT_2_2:
+			; convert ascii to decimal
+			sub [inputB2],'0'
+
+
+		; ======================== input third digit ======================== ;
+		mov ah,01h
+		int 21h
+		mov inputB3,al
+
+		;=== FILTER INPUT ===
+		cmp [inputB3],'0'         		
+		jl CHECK_LETTERS_2_3				; CHECK_LETTERS if input is less than 0
+
+		cmp [inputB3],'9'
+		jg CHECK_LETTERS_2_3	   			; CHECK_LETTERS if input is less than 9
+
+		jmp ACCEPT_INPUT_2_3				; jump to accept if input are numbers
+
+		CHECK_LETTERS_2_3:
+			cmp [inputB3],'a'         		; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+			jl ADD_BASE14
+
+			cmp [inputB3],'d'
+			jg ADD_BASE14	   				; reject input higher than 2| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		ACCEPT_INPUT_2_3:
+			; convert ascii to decimal
+			sub [inputB3],'0'			
+
 		call linefeed
 
+; =================== =================== =================== ;
+
+		; Addend = 0. inputA1 inputA2 inputA3 
+		; Augend = 0. inputB1 inputB2 inputB3 
+
+		; -------------------- Total in base 3 ------------------------------ ;
+		; mov al,[inputA3]
+		; add al,[inputB3]
+		; mov [inputB3],al   					; result of the total inputA3 + inputB3
+
+		; ; division of result
+		; mov ah,00h
+		; mov al,00h
+		; mov al,[inputB3]					; transfer the total to al
+		; mov bl,14h							; base 3
+		; div bl
+
+		; ; result
+		; mov [inputA3],al    				; quotient
+		; mov [inputB3],ah    				; ramainder = last digit
+
+		; print the result
         mov ah,09h
         lea dx,res2
         int 21h
+
+		mov ah, 02h 		 ; pang print out ito
+		mov dl,[inputA3]	 ; last digit
+    	int 21h
 
 ADD_BASE14 endp
 
@@ -807,9 +1081,10 @@ ADD_BASE14_AGAIN proc
 		int 21h
 		
 		Y_BASE14:
-		jmp ADD_BASE14
+			jmp ADD_BASE14
 		N_BASE14:
-		jmp CALC_CHOOSE_BASE
+			jmp CALC_ADDITION_CHOOSE_BASE
+
 ADD_BASE14_AGAIN endp
 
 ADD_BASE6 proc
@@ -1057,9 +1332,555 @@ ADD_BASE6_AGAIN proc
 		Y_BASE6:
 		jmp ADD_BASE6
 		N_BASE6:
-		jmp CALC_CHOOSE_BASE
+		jmp CALC_ADDITION_CHOOSE_BASE
 
 ADD_BASE6_AGAIN endp
+
+SUB_BASE3 proc
+		
+; pang clear screeen
+		mov ax,0600h
+        mov bh,70h
+        mov cx,0000h
+        mov dx,184fh
+        int 10h
+        mov bh,00h
+        mov ah,02h
+        mov dx,011Eh
+        int 10h
+
+		call linefeed
+
+        mov ah,09h
+        lea dx,menu221  ; ==== SUBTRACTION BASE 03 =====
+        int 21h
+		
+		call linefeed
+
+; first input
+        mov ah,09h
+        lea dx,snum1  			; Minuend
+        int 21h
+
+		; Print dot character
+        lea dx, dot     		; Load dot character = '00.'
+        int 21h
+
+		; ======= input first digit
+		mov ah,01h
+		int 21h
+		mov [inputA1],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA1],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE3
+
+		cmp [inputA1],'2'
+		jg SUB_BASE3	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+
+		; ============================== ;
+
+		; =======  input second digit
+		mov ah,01h
+		int 21h
+		mov [inputA2],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA2],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE3
+
+		cmp [inputA2],'2'
+		jg SUB_BASE3	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		; ============================== ;
+
+		; =======   input third digit
+		mov ah,01h
+		int 21h
+		mov [inputA3],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA3],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE3
+
+		cmp [inputA3],'2'
+		jg SUB_BASE3	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+
+		; ============================== ;
+		
+
+; second input
+        mov ah,09h
+        lea dx,snum2 				; Subtrahend
+        int 21h
+
+		; Print dot character
+        lea dx, dot     			; Load dot character = '00.'
+        int 21h
+
+		; ======= input first digit
+		mov ah,01h
+		int 21h
+		mov [inputB1],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB1],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE3
+
+		cmp [inputB1],'2'
+		jg SUB_BASE3	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		; ============================== ;
+
+		; =======  input second digit
+		mov ah,01h
+		int 21h
+		mov [inputB2],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB2],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE3
+
+		cmp [inputB2],'2'
+		jg SUB_BASE3	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+
+		; ============================== ;
+
+		; =======   input third digit
+		mov ah,01h
+		int 21h
+		mov [inputB3],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB3],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE3
+
+		cmp [inputB3],'2'
+		jg SUB_BASE3	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		; ============================== ;
+
+; -------------------- Total in base 3 ------------------------------ ;
+		; Minuend = 0. inputA1 inputA2 inputA3
+		; Subtrahend = 0. inputB1 inputB2 inputB3
+
+; ============================== SUBTRACTION USING R's Compliment ============================== ;
+		
+		; Rs Compliment
+		mov ax,3232h
+		mov bl,33h
+
+		sub ah,[inputB1] 
+		sub al,[inputB2] 
+		sub bl, [inputB3] 
+
+		
+		mov cx,ax 			; transfer the rs complment in cx register
+
+		; trasnfer the rs complemented result
+		mov [inputB1], ch	
+		mov [inputB2], cl
+		mov [inputB3], bl
+
+
+		; transfer the minuned to register
+		mov ch,inputA1
+		mov cl,inputA2
+		mov bl,inputA3
+
+		; convert to decimal
+		sub cx,3030h 		
+		sub bl,30h
+
+		; ============ addition of minuend + rs complement ============ ;
+		mov al,ch
+		add al,[inputB3]
+		mov [inputB3],al
+
+		; division the result
+		sub ax,ax 				; clear the value
+		mov al,[inputB3]		; transfer the total to al
+		mov bl,03h				; base 3
+		div bl
+
+		; result
+		mov [inputA3],al    ; quotient
+		mov [inputB3],ah    ; ramainder = last digit
+
+		; ============ addition of minuend + rs complement ============ ;
+		mov al,ch
+		add al,[inputB2]
+		add al,[inputA3]
+		mov [inputB2],al
+
+		; division the result
+		sub ax,ax 				; clear the value
+		mov al,[inputB2]		; transfer the total to al
+		mov bl,03h				; base 3
+		div bl
+
+		; result
+		mov [inputA2],al    ; quotient
+		mov [inputB2],ah    ; ramainder = second digit
+
+		; ============ addition of minuend + rs complement ============ ;
+		mov al,ch
+		add al,[inputB1]
+		add al,[inputA2]
+		mov [inputB1],al
+
+		; division the result
+		sub ax,ax 				; clear the value
+		mov al,[inputB1]		; transfer the total to al
+		mov bl,03h				; base 3
+		div bl
+
+		; result
+		sub al,al
+		mov [inputA1],al    ; quotient
+		mov [inputB1],ah    ; ramainder = first digit		
+
+		; print the result
+		mov ah,09h
+        lea dx,res6 	     ; Diffirence
+        int 21h
+		
+		mov ah, 02h 		 ; pang print out ito
+
+		mov dl,[inputA1] 	 ; first digit
+		add dl,'0'
+    	int 21h
+
+		; Print dot character
+        mov dl, '.'     	 ; dot'
+        int 21h
+
+
+		mov dl,[inputB1]     ; second digit
+		add dl,'0'
+    	int 21h
+
+		mov dl,[inputB2]	 ; third digit
+		add dl,'0'
+    	int 21h
+
+		mov dl,[inputB3]	 ; last digit
+		add dl,'0'
+    	int 21h
+
+
+
+SUB_BASE3 endp
+		
+SUB_BASE3_AGAIN proc
+        mov ah,09h
+        lea dx,sloop3
+        int 21h
+		mov ah,01h		
+        int 21h
+        mov bh,al
+		int 21h
+		
+		cmp bh,'Y'
+		je subY_BASE3
+		cmp bh,'y' ;if 'y' is selected
+		je subY_BASE3
+		
+		cmp bh,'N' ;if 'n' is selected
+		je subN_BASE3
+		cmp bh,'n' ;if 'n' is selected
+		je subN_BASE3
+		
+		mov ah,09h
+		lea dx,inv
+		int 21h
+		lea dx,any
+		int 21h
+		mov ah,01h
+		int 21h
+		
+		subY_BASE3:
+			jmp SUB_BASE3
+		subN_BASE3:
+			jmp CALC_SUBTRACTION_CHOOSE_BASE 
+
+SUB_BASE3_AGAIN endp
+
+SUB_BASE6 proc
+		
+; pang clear screeen
+		mov ax,0600h
+        mov bh,70h
+        mov cx,0000h
+        mov dx,184fh
+        int 10h
+        mov bh,00h
+        mov ah,02h
+        mov dx,011Eh
+        int 10h
+
+		call linefeed
+
+        mov ah,09h
+        lea dx,menu223  ; ==== SUBTRACTION BASE 06 =====
+        int 21h
+		
+		call linefeed
+
+; first input
+        mov ah,09h
+        lea dx,snum5  			; Minuend
+        int 21h
+
+		; Print dot character
+        lea dx, dot     		; Load dot character = '00.'
+        int 21h
+
+		; ======= input first digit
+		mov ah,01h
+		int 21h
+		mov [inputA1],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA1],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE6
+
+		cmp [inputA1],'5'
+		jg SUB_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+
+		; ============================== ;
+
+		; =======  input second digit
+		mov ah,01h
+		int 21h
+		mov [inputA2],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA2],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE6
+
+		cmp [inputA2],'5'
+		jg SUB_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		; ============================== ;
+
+		; =======   input third digit
+		mov ah,01h
+		int 21h
+		mov [inputA3],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputA3],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE6
+
+		cmp [inputA3],'5'
+		jg SUB_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+
+		; ============================== ;
+		
+
+; second input
+        mov ah,09h
+        lea dx,snum6 				; Subtrahend
+        int 21h
+
+		; Print dot character
+        lea dx, dot     			; Load dot character = '00.'
+        int 21h
+
+		; ======= input first digit
+		mov ah,01h
+		int 21h
+		mov [inputB1],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB1],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE6
+
+		cmp [inputB1],'5'
+		jg SUB_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		; ============================== ;
+
+		; =======  input second digit
+		mov ah,01h
+		int 21h
+		mov [inputB2],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB2],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE6
+
+		cmp [inputB2],'5'
+		jg SUB_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+
+		; ============================== ;
+
+		; =======   input third digit
+		mov ah,01h
+		int 21h
+		mov [inputB3],al			; store first digit to inputA1
+
+		; filter the digits
+		cmp [inputB3],'0'         	; reject input less than 0 | NOTE : NIREKTA BALIK KO SA FUNCTION
+		jl SUB_BASE6
+
+		cmp [inputB3],'5'
+		jg SUB_BASE6	   			; reject input higher than 5| NOTE : NIREKTA BALIK KO SA FUNCTION
+
+		; ============================== ;
+
+; -------------------- Total in base 6 ------------------------------ ;
+		; Minuend = 0. inputA1 inputA2 inputA3
+		; Subtrahend = 0. inputB1 inputB2 inputB3
+
+; ============================== SUBTRACTION USING R's Compliment ============================== ;
+		
+		; Rs Compliment
+		mov ax,3535h
+		mov bl,36h
+
+		sub ah,[inputB1] 
+		sub al,[inputB2] 
+		sub bl, [inputB3] 
+
+		
+		mov cx,ax 			; transfer the rs complment in cx register
+
+		; trasnfer the rs complemented result
+		mov [inputB1], ch	
+		mov [inputB2], cl
+		mov [inputB3], bl
+
+
+		; transfer the minuned to register
+		mov ch,inputA1
+		mov cl,inputA2
+		mov bl,inputA3
+
+		; convert to decimal
+		sub cx,3030h 		
+		sub bl,30h
+
+		; ============ addition of minuend + rs complement ============ ;
+		mov al,ch
+		add al,[inputB3]
+		mov [inputB3],al
+
+		; division the result
+		sub ax,ax 				; clear the value
+		mov al,[inputB3]		; transfer the total to al
+		mov bl,06h				; base 6
+		div bl
+
+		; result
+		mov [inputA3],al    ; quotient
+		mov [inputB3],ah    ; ramainder = last digit
+
+		; ============ addition of minuend + rs complement ============ ;
+		mov al,ch
+		add al,[inputB2]
+		add al,[inputA3]
+		mov [inputB2],al
+
+		; division the result
+		sub ax,ax 				; clear the value
+		mov al,[inputB2]		; transfer the total to al
+		mov bl,06h				; base 6
+		div bl
+
+		; result
+		mov [inputA2],al    ; quotient
+		mov [inputB2],ah    ; ramainder = second digit
+
+		; ============ addition of minuend + rs complement ============ ;
+		mov al,ch
+		add al,[inputB1]
+		add al,[inputA2]
+		mov [inputB1],al
+
+		; division the result
+		sub ax,ax 				; clear the value
+		mov al,[inputB1]		; transfer the total to al
+		mov bl,06h				; base 6
+		div bl
+
+		; result
+		sub al,al
+		mov [inputA1],al    ; quotient
+		mov [inputB1],ah    ; ramainder = first digit		
+
+		; print the result
+		mov ah,09h
+        lea dx,res6 	     ; Diffirence
+        int 21h
+		
+		mov ah, 02h 		 ; pang print out ito
+
+		mov dl,[inputA1] 	 ; first digit
+		add dl,'0'
+    	int 21h
+
+		; Print dot character
+        mov dl, '.'     	 ; dot'
+        int 21h
+
+
+		mov dl,[inputB1]     ; second digit
+		add dl,'0'
+    	int 21h
+
+		mov dl,[inputB2]	 ; third digit
+		add dl,'0'
+    	int 21h
+
+		mov dl,[inputB3]	 ; last digit
+		add dl,'0'
+    	int 21h
+
+
+
+SUB_BASE6 endp
+		
+SUB_BASE6_AGAIN proc
+        mov ah,09h
+        lea dx,sloop3
+        int 21h
+		mov ah,01h		
+        int 21h
+        mov bh,al
+		int 21h
+		
+		cmp bh,'Y'
+		je subY_BASE6
+		cmp bh,'y' ;if 'y' is selected
+		je subY_BASE6
+		
+		cmp bh,'N' ;if 'n' is selected
+		je subN_BASE6
+		cmp bh,'n' ;if 'n' is selected
+		je subN_BASE6
+		
+		mov ah,09h
+		lea dx,inv
+		int 21h
+		lea dx,any
+		int 21h
+		mov ah,01h
+		int 21h
+		
+		subY_BASE6:
+			jmp SUB_BASE6
+		subN_BASE6:
+			jmp CALC_SUBTRACTION_CHOOSE_BASE 
+
+SUB_BASE6_AGAIN endp
 		
 CONV_MAIN:
         call cls
@@ -1984,7 +2805,8 @@ invalid_calc_choose_base:
 		int 21h
 		mov ah,01h
 		int 21h
-		call CALC_CHOOSE_BASE
+		call CALC_ADDITION_CHOOSE_BASE
+
 
 invalid_conv_main:
 		call linefeed
